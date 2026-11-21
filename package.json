@@ -43,9 +43,9 @@
 		]
 	},
 	"devDependencies": {
-		"@n8n/node-cli": "^0.23.0",
+		"@n8n/node-cli": "^0.57.4",
 		"eslint": "^9.39.4",
-		"prettier": "^3.8.3",
+		"prettier": "^3.10.1",
 		"release-it": "^19.0.4",
 		"typescript": "^5.9.3"
 	},
