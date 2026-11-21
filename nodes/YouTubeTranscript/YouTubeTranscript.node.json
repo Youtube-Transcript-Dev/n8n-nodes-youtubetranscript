@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-youtubetranscript.youTubeTranscript",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing", "AI", "Development"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://www.youtubetranscript.dev/api-docs"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/Youtube-Transcript-Dev/n8n-nodes-youtubetranscript"
+			}
+		]
+	}
+}
