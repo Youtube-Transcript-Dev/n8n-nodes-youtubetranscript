@@ -18,7 +18,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Youtube-Transcript-Dev/n8n-nodes-youtubetranscript.git"
+		"url": "git+https://github.com/Youtube-Transcript-Dev/n8n-nodes-youtubetranscript.git"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
 	},
 	"scripts": {
 		"build": "n8n-node build",
