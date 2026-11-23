@@ -1,6 +1,8 @@
-# n8n-nodes-youtubetranscript
+# n8n-nodes-youtubetranscript-dev
 
 Verified-community-node candidate for [YouTube Transcript](https://www.youtubetranscript.dev): transcribe YouTube videos, fetch stored transcripts, translate them, and check credit balance.
+
+Package name uses `-dev` (npm blocked `n8n-nodes-youtubetranscript` as too similar to an unrelated community package `n8n-nodes-youtube-transcript`).
 
 Install from npm (once published) or from the n8n nodes panel after Creator Portal verification.
 

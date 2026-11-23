@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-youtubetranscript.youTubeTranscript",
+	"node": "n8n-nodes-youtubetranscript-dev.youTubeTranscript",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Marketing", "AI", "Development"],

@@ -15,7 +15,7 @@
 | --- | --- |
 | Integration name | YouTube Transcript |
 | Short description | Transcribe YouTube videos, fetch stored transcripts, and translate them with the YouTube Transcript API. |
-| npm package | `n8n-nodes-youtubetranscript` |
+| npm package | `n8n-nodes-youtubetranscript-dev` |
 | Website | https://www.youtubetranscript.dev |
 | Docs | https://www.youtubetranscript.dev/api-docs |
 
@@ -25,7 +25,7 @@ Portal: https://creators.n8n.io/ (or the current Creator Portal URL from n8n doc
 
 Record on self-hosted n8n with the **exact** published package version.
 
-1. Show terminal or n8n UI installing `n8n-nodes-youtubetranscript@x.y.z`.
+1. Show terminal or n8n UI installing `n8n-nodes-youtubetranscript-dev@x.y.z`.
 2. Restart / open n8n → add **YouTube Transcript** credentials with a live API key → test connection.
 3. Workflow: **Manual Trigger** → **YouTube Transcript** (Transcribe a short public video, captions_only).
 4. Second node or second run: **Get Transcript** (same video ID) or **Translate** to `es`.

@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-youtubetranscript",
+	"name": "n8n-nodes-youtubetranscript-dev",
 	"version": "0.1.0",
 	"description": "n8n community node for the YouTube Transcript API — transcribe, fetch, and translate YouTube captions",
 	"license": "MIT",

@@ -33,13 +33,13 @@ Local release **does not** publish to npm. It bumps version, tags `x.y.z`, pushe
 5. Validate:
 
 ```bash
-npm view n8n-nodes-youtubetranscript version
+npm view n8n-nodes-youtubetranscript-dev version
 # On the npm package page, confirm “Provenance” / “Built and signed on GitHub Actions”
 ```
 
 ## Step B — Trusted Publisher (after package exists)
 
-1. https://www.npmjs.com/package/n8n-nodes-youtubetranscript → **Settings** → **Trusted Publisher**
+1. https://www.npmjs.com/package/n8n-nodes-youtubetranscript-dev → **Settings** → **Trusted Publisher**
 2. Add GitHub Actions:
    - Repository owner: `Youtube-Transcript-Dev`
    - Repository name: `n8n-nodes-youtubetranscript`
