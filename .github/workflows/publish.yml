@@ -80,8 +80,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          # Pin 22: lts/* can resolve to Node 26, which fails building isolated-vm (n8n-node-cli dep).
+          node-version: '22'
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
