@@ -1,6 +1,5 @@
-# Temporary bridge: reuse this repo's NPM_TOKEN to provenance-publish sibling
-# community nodes that live in creator-sites / monitormentions until those repos
-# have NPM_TOKEN set.
+# Publish sibling community nodes (public repos) using this repo's NPM_TOKEN.
+# Provenance attests this workflow; packages are also pushed from their own repos later.
 name: Publish sibling n8n nodes
 
 on:
@@ -15,6 +14,7 @@ on:
           - n8n-nodes-sociallinks
           - n8n-nodes-monitormentions
           - n8n-nodes-kovered
+          - all
 
 jobs:
   publish:
@@ -22,36 +22,38 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - n8n-nodes-removebackground
+          - n8n-nodes-sociallinks
+          - n8n-nodes-monitormentions
+          - n8n-nodes-kovered
     steps:
-      - name: Resolve source repo/path
-        id: src
+      - name: Skip if not selected
+        id: gate0
         run: |
-          case "${{ inputs.package }}" in
-            n8n-nodes-removebackground|n8n-nodes-sociallinks)
-              echo "repo=Youtube-Transcript-Dev/creator-sites" >> "$GITHUB_OUTPUT"
-              echo "ref=main" >> "$GITHUB_OUTPUT"
-              echo "dir=integrations/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
-              ;;
-            n8n-nodes-monitormentions|n8n-nodes-kovered)
-              echo "repo=Youtube-Transcript-Dev/monitormentions" >> "$GITHUB_OUTPUT"
-              echo "ref=feat/mcp-design" >> "$GITHUB_OUTPUT"
-              echo "dir=integrations/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
-              ;;
-          esac
+          if [ "${{ inputs.package }}" = "all" ] || [ "${{ inputs.package }}" = "${{ matrix.package }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping ${{ matrix.package }}"
+          fi
       - uses: actions/checkout@v4
+        if: steps.gate0.outputs.run == 'true'
         with:
-          repository: ${{ steps.src.outputs.repo }}
-          ref: ${{ steps.src.outputs.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: Youtube-Transcript-Dev/${{ matrix.package }}
+          ref: main
       - uses: actions/setup-node@v4
+        if: steps.gate0.outputs.run == 'true'
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: npm
-          cache-dependency-path: ${{ steps.src.outputs.dir }}/package-lock.json
       - name: Check version
+        if: steps.gate0.outputs.run == 'true'
         id: version
-        working-directory: ${{ steps.src.outputs.dir }}
         run: |
           version=$(node -p "require('./package.json').version")
           name=$(node -p "require('./package.json').name")
@@ -63,18 +65,14 @@ jobs:
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
-      - if: steps.version.outputs.publish == 'true'
-        working-directory: ${{ steps.src.outputs.dir }}
+      - if: steps.gate0.outputs.run == 'true' && steps.version.outputs.publish == 'true'
         run: npm ci
-      - if: steps.version.outputs.publish == 'true'
-        working-directory: ${{ steps.src.outputs.dir }}
+      - if: steps.gate0.outputs.run == 'true' && steps.version.outputs.publish == 'true'
         run: npm run lint
-      - if: steps.version.outputs.publish == 'true'
-        working-directory: ${{ steps.src.outputs.dir }}
+      - if: steps.gate0.outputs.run == 'true' && steps.version.outputs.publish == 'true'
         run: npm run build
       - name: Publish with provenance
-        if: steps.version.outputs.publish == 'true'
-        working-directory: ${{ steps.src.outputs.dir }}
+        if: steps.gate0.outputs.run == 'true' && steps.version.outputs.publish == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_MODE: "true"
