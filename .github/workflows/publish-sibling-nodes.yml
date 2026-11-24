@@ -1,0 +1,81 @@
+# Temporary bridge: reuse this repo's NPM_TOKEN to provenance-publish sibling
+# community nodes that live in creator-sites / monitormentions until those repos
+# have NPM_TOKEN set.
+name: Publish sibling n8n nodes
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        required: true
+        type: choice
+        options:
+          - n8n-nodes-removebackground
+          - n8n-nodes-sociallinks
+          - n8n-nodes-monitormentions
+          - n8n-nodes-kovered
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Resolve source repo/path
+        id: src
+        run: |
+          case "${{ inputs.package }}" in
+            n8n-nodes-removebackground|n8n-nodes-sociallinks)
+              echo "repo=Youtube-Transcript-Dev/creator-sites" >> "$GITHUB_OUTPUT"
+              echo "ref=main" >> "$GITHUB_OUTPUT"
+              echo "dir=integrations/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+              ;;
+            n8n-nodes-monitormentions|n8n-nodes-kovered)
+              echo "repo=Youtube-Transcript-Dev/monitormentions" >> "$GITHUB_OUTPUT"
+              echo "ref=feat/mcp-design" >> "$GITHUB_OUTPUT"
+              echo "dir=integrations/${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.src.outputs.repo }}
+          ref: ${{ steps.src.outputs.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: ${{ steps.src.outputs.dir }}/package-lock.json
+      - name: Check version
+        id: version
+        working-directory: ${{ steps.src.outputs.dir }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          name=$(node -p "require('./package.json').name")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          if npm view "$name@$version" version > /dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$name@$version already on npm"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.version.outputs.publish == 'true'
+        working-directory: ${{ steps.src.outputs.dir }}
+        run: npm ci
+      - if: steps.version.outputs.publish == 'true'
+        working-directory: ${{ steps.src.outputs.dir }}
+        run: npm run lint
+      - if: steps.version.outputs.publish == 'true'
+        working-directory: ${{ steps.src.outputs.dir }}
+        run: npm run build
+      - name: Publish with provenance
+        if: steps.version.outputs.publish == 'true'
+        working-directory: ${{ steps.src.outputs.dir }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_MODE: "true"
+        run: npm publish --provenance --access public

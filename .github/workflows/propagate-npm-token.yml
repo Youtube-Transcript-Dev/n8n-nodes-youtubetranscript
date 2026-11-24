@@ -1,0 +1,31 @@
+# Copies this repo's NPM_TOKEN onto sibling n8n node repos (same org).
+# Requires a PAT in PROPAGATE_GH_TOKEN with repo secrets:write on those repos,
+# OR leave unset to attempt with GITHUB_TOKEN (often insufficient cross-repo).
+name: Propagate NPM_TOKEN
+
+on:
+  workflow_dispatch:
+
+jobs:
+  propagate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Set NPM_TOKEN on sibling repos
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.PROPAGATE_GH_TOKEN || github.token }}
+        run: |
+          set -e
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error::NPM_TOKEN missing on this repo"
+            exit 1
+          fi
+          for r in \
+            Youtube-Transcript-Dev/n8n-nodes-removebackground \
+            Youtube-Transcript-Dev/n8n-nodes-sociallinks \
+            Youtube-Transcript-Dev/n8n-nodes-monitormentions \
+            Youtube-Transcript-Dev/n8n-nodes-kovered
+          do
+            echo -n "$NPM_TOKEN" | gh secret set NPM_TOKEN --repo "$r"
+            echo "Set NPM_TOKEN on $r"
+          done
