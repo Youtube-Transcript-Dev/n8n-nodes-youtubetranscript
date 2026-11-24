@@ -81,23 +81,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           # Pin 22: lts/* can resolve to Node 26, which fails building isolated-vm (n8n-node-cli dep).
+          # Do not set registry-url here: an empty NODE_AUTH_TOKEN from setup-node
+          # overrides OIDC Trusted Publisher auth and causes a false 404 on publish.
           node-version: '22'
           cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Release
         # Publishes to npm with a provenance attestation (requires id-token: write above).
-        # Lint and build run automatically as part of the release process.
-        #
-        # Option A (OIDC): leave NPM_TOKEN unset — the token step is skipped and
-        #   npm uses the OIDC exchange instead.
-        # Option B (token): set NPM_TOKEN in repo secrets — it is written to
-        #   .npmrc here before publishing.
+        # Prefer OIDC Trusted Publisher. Optional NPM_TOKEN is a fallback only.
         run: |
-          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          fi
           npm run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
